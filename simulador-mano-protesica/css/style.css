@@ -1,0 +1,635 @@
+/* ====================================================================
+   BIONICHAND 3D STUDIO - ESTILOS LIMPIOS Y DIDÁCTICOS (GLASSMORPHISM)
+   Enfoque: Minimalismo visual, máxima inmersión 3D y pedagogía interactiva
+   ==================================================================== */
+
+:root {
+    --bg-dark: #07090e;
+    --bg-glass: rgba(13, 18, 28, 0.78);
+    --bg-glass-hover: rgba(22, 30, 46, 0.9);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --border-accent: rgba(56, 189, 248, 0.4);
+    
+    --primary: #38bdf8;
+    --primary-glow: rgba(56, 189, 248, 0.35);
+    --accent: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Consolas', 'Fira Code', 'Courier New', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Lienzo 3D en pantalla completa */
+#renderCanvas {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    outline: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* ====================================================================
+   BARRA SUPERIOR MINIMALISTA
+   ==================================================================== */
+.top-header {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    height: 48px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 10;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.brand-icon {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.brand-text-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+}
+
+/* Selector de Modos Central (Píldora) */
+.mode-switch-pill {
+    display: flex;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-glass);
+    border-radius: 30px;
+    padding: 3px;
+    gap: 3px;
+}
+
+.mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mode-btn:hover {
+    color: #fff;
+}
+
+.mode-btn.active {
+    background: var(--primary);
+    color: #07090e;
+    font-weight: 700;
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Acciones Rápidas Superior Derecha */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-btn.highlight {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.header-btn.highlight:hover {
+    background: var(--primary);
+    color: #07090e;
+}
+
+/* ====================================================================
+   TARJETA DIDÁCTICA FLOTANTE (PASO A PASO)
+   ==================================================================== */
+.didactic-card-container {
+    position: absolute;
+    top: 4.8rem;
+    left: 1rem;
+    width: 320px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border-accent);
+    border-radius: 14px;
+    padding: 1.15rem;
+    z-index: 10;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+}
+
+.didactic-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+
+.phase-step-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--primary);
+    font-size: 0.70rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.didactic-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.45rem;
+    line-height: 1.3;
+}
+
+.didactic-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin-bottom: 1rem;
+}
+
+.btn-place-part {
+    width: 100%;
+    background: linear-gradient(135deg, #0284c7, var(--primary));
+    color: #07090e;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 0.65rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px var(--primary-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: all 0.2s ease;
+}
+
+.btn-place-part:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+}
+
+.btn-place-part:active {
+    transform: translateY(0);
+}
+
+.phase-nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-glass);
+}
+
+.phase-nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.phase-nav-btn:hover {
+    color: var(--primary);
+}
+
+.phase-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+}
+
+.dot.active {
+    background: var(--primary);
+    width: 18px;
+    border-radius: 4px;
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+
+.dot.completed {
+    background: var(--success);
+}
+
+/* ====================================================================
+   DOCK FLOTANTE INFERIOR (MODO CONSTRUCCIÓN Y MODO PRUEBAS)
+   ==================================================================== */
+.bottom-dock {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-glass);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 0.55rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 10;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    transition: all 0.25s ease;
+}
+
+.dock-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dock-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-glass);
+}
+
+.dock-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+/* Botones circulares con icono */
+.icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-main);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.icon-btn.active {
+    background: var(--primary);
+    color: #07090e;
+    font-weight: 700;
+    box-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Slider didáctico de flexión y despiece */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--primary-glow);
+    transition: transform 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* ====================================================================
+   CONTROL DE CÁMARA FLOTANTE SUPERIOR DERECHA
+   ==================================================================== */
+.camera-floating-pill {
+    position: absolute;
+    top: 4.8rem;
+    right: 1rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 0.35rem 0.5rem;
+    display: flex;
+    gap: 0.3rem;
+    z-index: 10;
+}
+
+.cam-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.cam-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* ====================================================================
+   ALERTA DE FRAGILIDAD FLOTANTE (HUEVO, CAJA)
+   ==================================================================== */
+.fragility-banner {
+    position: absolute;
+    top: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(239, 68, 68, 0.95);
+    color: #fff;
+    padding: 0.6rem 1.4rem;
+    border-radius: 30px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.6);
+    z-index: 30;
+    display: none;
+    animation: pulseBanner 1s infinite alternate;
+}
+
+@keyframes pulseBanner {
+    from { opacity: 0.9; transform: translateX(-50%) scale(0.98); }
+    to { opacity: 1.0; transform: translateX(-50%) scale(1.02); }
+}
+
+/* ====================================================================
+   PANEL LATERAL DESLIZABLE (DRAWER OFF-CANVAS: FICHA TÉCNICA Y EXPORTACIÓN)
+   Solo visible cuando el usuario lo abre, manteniendo la pantalla limpia
+   ==================================================================== */
+.technical-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100vh;
+    background: rgba(10, 14, 22, 0.96);
+    backdrop-filter: blur(24px);
+    border-left: 1px solid var(--border-glass);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.technical-drawer.open {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.drawer-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.drawer-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-glass);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawer-close-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Tarjetas internas del Drawer */
+.drawer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.drawer-card-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    font-size: 0.78rem;
+}
+
+.metric-label {
+    color: var(--text-muted);
+}
+
+.metric-val {
+    color: #fff;
+    font-family: var(--font-mono);
+    font-weight: 700;
+}
+
+.metric-val.highlight { color: var(--primary); }
+.metric-val.good { color: var(--success); }
+
+/* Tabla BOM */
+.bom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.74rem;
+}
+
+.bom-table th, .bom-table td {
+    padding: 0.45rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bom-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.bom-table td.cost {
+    font-family: var(--font-mono);
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Indicador de Fuerza en Modo Pruebas */
+.force-indicator-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+}
+
+.force-indicator-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+    transition: width 0.08s ease;
+}
+
+/* Backdrop para Drawer */
+.drawer-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 45;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.drawer-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}

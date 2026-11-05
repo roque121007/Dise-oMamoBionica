@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mano Biónica 3D - Taller y Simulador Didáctico Desde Cero</title>
+    <!-- Babylon.js WebGL Engine -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <!-- Estilos limpios y didácticos -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- LIENZO 3D EN PANTALLA COMPLETA -->
+    <canvas id="renderCanvas"></canvas>
+
+    <!-- BARRA SUPERIOR MINIMALISTA -->
+    <header class="top-header">
+        <div class="brand-badge">
+            <div class="brand-icon">BH</div>
+            <div>
+                <span class="brand-text-title">Mano Biónica 3D</span>
+            </div>
+        </div>
+
+        <!-- Selector de Modos Central -->
+        <div class="mode-switch-pill">
+            <button id="btnModeWorkshop" class="mode-btn active" title="Crea y ensambla la mano paso a paso desde cero">
+                🛠️ Taller de Creación (Desde 0)
+            </button>
+            <button id="btnModeTesting" class="mode-btn" title="Prueba los agarres de objetos reales con sensores y PID">
+                🦾 Laboratorio de Pruebas
+            </button>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="header-actions">
+            <button id="btnEmptyTable" class="header-btn" title="Vaciar mesa de trabajo para empezar de nuevo">
+                ↺ Mesa Vacía
+            </button>
+            <button id="btnFullAssemble" class="header-btn highlight" title="Armar completamente la prótesis al instante">
+                ✨ Montar Completa
+            </button>
+            <button id="btnAudioToggle" class="header-btn" title="Activar/desactivar efectos de sonido mecánicos">
+                🔊 Audio: On
+            </button>
+            <button id="btnOpenDrawer" class="header-btn" title="Ver ficha técnica, firmware Arduino y exportar STL">
+                📋 Ficha Técnica & Exportar
+            </button>
+        </div>
+    </header>
+
+    <!-- TARJETA DIDÁCTICA FLOTANTE (MODO CREACIÓN PASO A PASO) -->
+    <div id="didacticCard" class="didactic-card-container">
+        <div class="didactic-badge-row">
+            <span id="phaseStepBadge" class="phase-step-badge">Paso 1 de 6</span>
+            <span id="phasePartsCount" style="font-size: 0.72rem; color: var(--text-dim);">0 / 31 Piezas</span>
+        </div>
+        <h2 id="didacticTitle" class="didactic-title">Fase 1: El Socket Anatómico & Muñeca</h2>
+        <p id="didacticDesc" class="didactic-desc">
+            El socket es el encaje ergonómico que conecta la prótesis al muñón del brazo. Distribuye la presión uniformemente sobre la piel para evitar lesiones (Ref: Hernández UNAB 2021).
+        </p>
+
+        <button id="btnPlaceCurrentPhase" class="btn-place-part">
+            ➕ Colocar Socket y Muñeca
+        </button>
+
+        <div class="phase-nav-row">
+            <button id="btnPrevPhase" class="phase-nav-btn">◀ Anterior</button>
+            <div id="phaseDotsContainer" class="phase-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+            <button id="btnNextPhase" class="phase-nav-btn">Siguiente ▶</button>
+        </div>
+    </div>
+
+    <!-- TARJETA FLOTANTE DE AGARRE (MODO LABORATORIO DE PRUEBAS) -->
+    <div id="testingCard" class="didactic-card-container" style="display: none;">
+        <div class="didactic-badge-row">
+            <span class="phase-step-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success); border-color: rgba(16, 185, 129, 0.3);">
+                Banco de Pruebas Físico
+            </span>
+            <span id="testingSensorStatus" style="font-size: 0.72rem; color: var(--success);">● Sensores FSR Activos</span>
+        </div>
+        <h2 class="didactic-title">Prueba de Sujeción y Control PID</h2>
+        <p class="didactic-desc">
+            Elige un objeto del mundo real para poner a prueba el agarre adaptativo y el control de presión automático para evitar roturas (Ref: Tesis UPS Nicolalde 2022).
+        </p>
+
+        <!-- Selector Rápido de Objetos con Botones -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; margin-bottom: 0.75rem;">
+            <button class="icon-btn test-obj-btn" data-obj="sodaCan">🥫 Lata Refresco</button>
+            <button class="icon-btn test-obj-btn" data-obj="plasticBottle">🍾 Botella Agua</button>
+            <button class="icon-btn test-obj-btn" data-obj="cardboardBox">📦 Caja Cartón</button>
+            <button class="icon-btn test-obj-btn" data-obj="rawEgg">🥚 Huevo Frágil</button>
+        </div>
+
+        <button id="btnStartPidAutoGrip" class="btn-place-part">
+            🎯 Iniciar Agarre con Control PID
+        </button>
+    </div>
+
+    <!-- ALERTA DE FRAGILIDAD FLOTANTE (HUEVO, CAJA) -->
+    <div id="fragilityBanner" class="fragility-banner">
+        ⚠️ ¡Atención! Riesgo de aplastamiento
+    </div>
+
+    <!-- CONTROL DE CÁMARA FLOTANTE -->
+    <div class="camera-floating-pill">
+        <button class="cam-btn" data-view="front">Frente</button>
+        <button class="cam-btn" data-view="side">Perfil</button>
+        <button class="cam-btn" data-view="top">Arriba</button>
+        <button class="cam-btn" data-view="iso">Isométrica</button>
+    </div>
+
+    <!-- DOCK FLOTANTE INFERIOR: MODO TALLER DE CONSTRUCCIÓN -->
+    <div id="dockWorkshop" class="bottom-dock">
+        <div class="dock-section">
+            <span class="dock-label">🎨 Material 3D:</span>
+            <button class="icon-btn mat-btn active" data-mat="pla" title="PLA Biocompatible (45 MPa)">PLA</button>
+            <button class="icon-btn mat-btn" data-mat="carbonFiberNylon" title="Nylon + Fibra de Carbono (95 MPa)">Fibra Carbono</button>
+            <button class="icon-btn mat-btn" data-mat="petg" title="PETG Flexible">PETG</button>
+            <button class="icon-btn mat-btn" data-mat="resinTough" title="Resina Tough SLA">Resina</button>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <div class="dock-section">
+            <span class="dock-label">💥 Despiece 3D:</span>
+            <input type="range" id="sliderExplodedView" min="0" max="100" value="0">
+            <span id="labelExplodedVal" style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--primary); min-width: 32px;">0%</span>
+            <button id="btnQuickExplode0" class="icon-btn" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">Armada</button>
+            <button id="btnQuickExplode100" class="icon-btn" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">100%</button>
+        </div>
+    </div>
+
+    <!-- DOCK FLOTANTE INFERIOR: MODO LABORATORIO DE PRUEBAS -->
+    <div id="dockTesting" class="bottom-dock" style="display: none;">
+        <div class="dock-section">
+            <span class="dock-label">🖐️ Agarre:</span>
+            <button class="icon-btn grasp-btn active" data-grasp="OPEN">Abierta</button>
+            <button class="icon-btn grasp-btn" data-grasp="POWER_CYLINDER">Cilíndrico</button>
+            <button class="icon-btn grasp-btn" data-grasp="PRECISION_PINCH">Pinza Fina</button>
+            <button class="icon-btn grasp-btn" data-grasp="HOOK">Gancho</button>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <div class="dock-section">
+            <span class="dock-label">Cierre Manual:</span>
+            <input type="range" id="sliderGripClosing" min="0" max="100" value="0">
+            <span id="labelGripClosingVal" style="font-family: var(--font-mono); font-size: 0.74rem; color: #fff; min-width: 30px;">0%</span>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <div class="dock-section">
+            <span class="dock-label">Presión FSR:</span>
+            <div class="force-indicator-bar">
+                <div id="forceFillBar" class="force-indicator-fill"></div>
+            </div>
+            <span id="labelForceVal" style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--success); margin-left: 0.3rem;">0.0 N</span>
+        </div>
+    </div>
+
+    <!-- BACKDROP PARA DRAWER LATERAL -->
+    <div id="drawerBackdrop" class="drawer-backdrop"></div>
+
+    <!-- DRAWER LATERAL OFF-CANVAS: FICHA TÉCNICA Y EXPORTACIÓN -->
+    <aside id="technicalDrawer" class="technical-drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">📋 Ficha Técnica & Exportación</span>
+            <button id="btnCloseDrawer" class="drawer-close-btn" title="Cerrar panel">✕</button>
+        </div>
+        <div class="drawer-body">
+
+            <!-- Ficha Técnica de la Pieza Seleccionada -->
+            <div class="drawer-card">
+                <div class="drawer-card-title">
+                    <span>Pieza Seleccionada</span>
+                    <span id="drawerPartIdBadge" class="phase-step-badge">CAD</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Nombre:</span>
+                    <span id="drawerPartName" class="metric-val highlight">Mano Completa</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Categoría:</span>
+                    <span id="drawerPartCategory" class="metric-val">Estructura Protésica</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Material de Fabricación:</span>
+                    <span id="drawerPartMaterial" class="metric-val">PLA Biocompatible</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Masa Aprox:</span>
+                    <span id="drawerPartWeight" class="metric-val">~280 gramos</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Esfuerzo Von Mises:</span>
+                    <span id="drawerPartStress" class="metric-val good">Seguro (FS > 2.0)</span>
+                </div>
+                <button id="btnDownloadCurrentPartSTL" class="btn-place-part" style="margin-top: 0.75rem; padding: 0.45rem;">
+                    💾 Descargar STL de esta Pieza (.stl)
+                </button>
+                <button id="btnDownloadFullHandSTL" class="header-btn highlight" style="width: 100%; justify-content: center; margin-top: 0.5rem; padding: 0.45rem;">
+                    📦 Descargar Toda la Mano Ensamblada (.stl)
+                </button>
+            </div>
+
+            <!-- Estándares Antropométricos y Biometría -->
+            <div class="drawer-card">
+                <div class="drawer-card-title"><span>Estándar Antropométrico</span></div>
+                <select id="drawerBiometricsSelect" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border-glass); color: #fff; padding: 0.4rem; border-radius: 6px; font-size: 0.76rem; outline: none;">
+                    <option value="buryanov">Estándar Clínico Radiológico (Buryanov 2010)</option>
+                    <option value="din33402">Estándar Industrial Ergonómico (DIN 33 402)</option>
+                    <option value="powerGripSport">Prótesis Deportiva / Potencia (Hernández 2021)</option>
+                    <option value="pediatric">Pediátrica / Juvenil (Escala 75%)</option>
+                </select>
+            </div>
+
+            <!-- Botones de Descarga y Fabricación -->
+            <div class="drawer-card">
+                <div class="drawer-card-title"><span>Herramientas de Fabricación</span></div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button id="btnDownloadArduinoFirmware" class="btn-place-part" style="padding: 0.5rem;">
+                        ⚡ Descargar Firmware Arduino C++ (.ino)
+                    </button>
+                    <button id="btnDownloadBOMCSV" class="header-btn" style="width: 100%; justify-content: center; padding: 0.5rem;">
+                        📊 Descargar Lista de Materiales (.csv)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de Materiales (BOM) Resumida -->
+            <div class="drawer-card">
+                <div class="drawer-card-title"><span>Presupuesto Estimado (BOM)</span></div>
+                <table class="bom-table">
+                    <thead>
+                        <tr>
+                            <th>Componente</th>
+                            <th>Cant.</th>
+                            <th>Costo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bomTableBody">
+                        <!-- Generado dinámicamente -->
+                    </tbody>
+                </table>
+                <div style="margin-top: 0.65rem; font-size: 0.72rem; color: var(--success); line-height: 1.35;">
+                    💡 <strong>Ahorro superior al 98%</strong> respecto a prótesis mioeléctricas comerciales ($25,000 USD).
+                </div>
+            </div>
+
+            <!-- Documentos y Tesis Integradas -->
+            <div class="drawer-card">
+                <div class="drawer-card-title"><span>Investigaciones Científicas Integradas</span></div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+                    <p style="margin-bottom: 0.4rem;">• <strong>David Hernández (UNAB 2021)</strong>: Biometría DIN 33 402, distribución de carga 100N y análisis Von Mises.</p>
+                    <p style="margin-bottom: 0.4rem;">• <strong>Franklin Nicolalde (UPS 2022)</strong>: Sensores FSR-402 y control PID para latas y botellas.</p>
+                    <p style="margin-bottom: 0.4rem;">• <strong>Scott Garrett (Cal Poly 2011)</strong>: Plataforma Arduino abierta y prueba de huevo frágil.</p>
+                    <p>• <strong>César Quinayás (2010)</strong>: Cinemática directa Denavit-Hartenberg (D-H).</p>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Script de aplicación modular -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
